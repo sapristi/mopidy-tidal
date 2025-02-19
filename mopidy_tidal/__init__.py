@@ -4,7 +4,10 @@ import logging
 import os
 import sys
 
+import tornado.web
+
 from mopidy import config, ext
+from .web_api_extra  import api_extra_factory
 
 __version__ = "0.3.9"
 
@@ -44,3 +47,10 @@ class Extension(ext.Extension):
         from .backend import TidalBackend
 
         registry.add("backend", TidalBackend)
+
+        registry.add('http:app',
+            {
+                "name": self.ext_name,
+                "factory": api_extra_factory
+            },
+        )

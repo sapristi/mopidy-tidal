@@ -1,0 +1,28 @@
+import tornado.web
+
+
+class AddToPlaylistRequestHandler(tornado.web.RequestHandler):
+    def initialize(self, config, core):
+        from .backend import TidalBackend
+        self.config = config
+        self.core = core
+        self.backend = TidalBackend(config, None)
+        self.backend.on_start()
+
+    def get(self):
+        playlist_uri = self.get_arguments("playlist_uri")
+        track_uri = self.get_arguments("track_uri")
+        playlist_id = playlist_uri[0].split(":")[-1]
+        track_ids = [uri.split(":")[-1] for uri in  track_uri]
+
+        upstream_playlist = self.backend.session.playlist(playlist_id)
+        res = upstream_playlist.add(track_ids)
+        self.write(
+            f'Added {res}'
+        )
+
+
+def api_extra_factory(config, core):
+    return [
+        ('/add_to_playlist', AddToPlaylistRequestHandler, {'config': config, 'core': core})
+    ]
