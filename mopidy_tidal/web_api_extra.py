@@ -2,6 +2,13 @@ import tornado.web
 
 
 class AddToPlaylistRequestHandler(tornado.web.RequestHandler):
+
+    def set_default_headers(self):
+        # TODO: only allow localhost
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
+        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+
     def initialize(self, config, core):
         from .backend import TidalBackend
         self.config = config
@@ -17,6 +24,7 @@ class AddToPlaylistRequestHandler(tornado.web.RequestHandler):
 
         upstream_playlist = self.backend.session.playlist(playlist_id)
         res = upstream_playlist.add(track_ids)
+        self.backend.playlists.refresh(playlist_uri)
         self.write(
             f'Added {res}'
         )
