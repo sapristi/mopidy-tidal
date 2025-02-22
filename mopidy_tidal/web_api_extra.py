@@ -22,11 +22,11 @@ class AddToPlaylistRequestHandler(tornado.web.RequestHandler):
     def get(self):
         playlist_uri = self.get_arguments("playlist_uri")
         track_uri = self.get_arguments("track_uri")
-        logger.info(f"PL {playlist_uri}")
-        logger.info(f"TR {track_uri}")
         playlist_id = playlist_uri[0].split(":")[-1]
         track_ids = [uri.split(":")[-1] for uri in  track_uri]
 
+        logger.info(f"PL {playlist_uri} - {playlist_id}")
+        logger.info(f"TR {track_uri} - {track_ids}")
         upstream_playlist = self.backend.session.playlist(playlist_id)
         res = upstream_playlist.add(track_ids)
         self.backend.playlists.refresh(playlist_uri)
