@@ -1,4 +1,7 @@
+import logging
 import tornado.web
+
+logger = logging.getLogger(__name__)
 
 
 class AddToPlaylistRequestHandler(tornado.web.RequestHandler):
@@ -19,8 +22,8 @@ class AddToPlaylistRequestHandler(tornado.web.RequestHandler):
     def get(self):
         playlist_uri = self.get_arguments("playlist_uri")
         track_uri = self.get_arguments("track_uri")
-        print("PL", playlist_uri)
-        print("TR", track_uri)
+        logger.info(f"PL {playlist_uri}")
+        logger.info(f"TR {track_uri}")
         playlist_id = playlist_uri[0].split(":")[-1]
         track_ids = [uri.split(":")[-1] for uri in  track_uri]
 
