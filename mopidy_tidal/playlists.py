@@ -219,6 +219,7 @@ class TidalPlaylistsProvider(backend.PlaylistsProvider):
             uri = "tidal:playlist:" + pl.id
             # Skip or cache hit case
             if (uris and uri not in uris) or pl in playlist_cache:
+                logger.info(f"Not refreshing {pl}")
                 continue
 
             # Cache miss case
