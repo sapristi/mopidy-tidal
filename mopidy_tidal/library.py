@@ -15,7 +15,7 @@ from mopidy_tidal.login_hack import login_hack
 from mopidy_tidal.lru_cache import LruCache
 from mopidy_tidal.playlists import PlaylistMetadataCache
 from mopidy_tidal.utils import apply_watermark
-from mopidy_tidal.workers import get_items
+from tidalapi.workers import get_items
 
 if TYPE_CHECKING:  # pragma: no cover
     from mopidy_tidal.backend import TidalBackend
@@ -248,11 +248,11 @@ class TidalLibraryProvider(backend.LibraryProvider):
 
         elif uri == "tidal:my_artists":
             return ref_models_mappers.create_artists(
-                get_items(session.user.favorites.artists)
+                session.user.favorites.artists_paginated()
             )
         elif uri == "tidal:my_albums":
             return ref_models_mappers.create_albums(
-                get_items(session.user.favorites.albums)
+                session.user.favorites.albums_paginated()
             )
         elif uri == "tidal:my_playlists":
             return self.backend.playlists.as_list()
@@ -260,7 +260,7 @@ class TidalLibraryProvider(backend.LibraryProvider):
             return ref_models_mappers.create_mixes(session.user.favorites.mixes())
         elif uri == "tidal:my_tracks":
             return ref_models_mappers.create_tracks(
-                get_items(session.user.favorites.tracks)
+                session.user.favorites.tracks_paginated()
             )
         elif uri == "tidal:home":
             return ref_models_mappers.create_category_directories(uri, session.home())
