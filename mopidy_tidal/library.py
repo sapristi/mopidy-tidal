@@ -9,13 +9,13 @@ from mopidy import backend, models
 from mopidy.models import Image, Ref, SearchResult, Track
 from requests.exceptions import HTTPError
 from tidalapi.exceptions import ObjectNotFound, TooManyRequests
+from tidalapi.workers import get_items
 
 from mopidy_tidal import full_models_mappers, ref_models_mappers
 from mopidy_tidal.login_hack import login_hack
 from mopidy_tidal.lru_cache import LruCache
 from mopidy_tidal.playlists import PlaylistMetadataCache
 from mopidy_tidal.utils import apply_watermark
-from tidalapi.workers import get_items
 
 if TYPE_CHECKING:  # pragma: no cover
     from mopidy_tidal.backend import TidalBackend
