@@ -1,5 +1,10 @@
 # Changelog
 
+#### v0.3.11
+
+- Bugfix: Set playlist fetch limit to 50 items due to v2 endpoint limitations
+- Get ThreadPoolExecutor from tidalapi
+
 #### v0.3.10
 
 - Don't break tracks import if the track_id is not found
