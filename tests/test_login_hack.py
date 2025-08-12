@@ -1,4 +1,5 @@
 from concurrent.futures import Future
+from unittest.mock import PropertyMock
 
 import pytest
 from mopidy.models import Album, Artist, Image, Playlist, Ref, SearchResult, Track
@@ -222,10 +223,16 @@ class TestPlaylistMethods:
         backend, pp = playlist_provider
         backend._logged_in = True
         audiof = backend.data_dir / "login_audio/URI.ogg"
-        session = mocker.Mock(**{"user.favorites.playlists": tidal_playlists[:1]})
-        backend._active_session = session
+
+        session = mocker.Mock()
+        session.user.favorites.playlists_paginated.return_value = tidal_playlists
+
+        # Patch the session property on the backend's class, so the instance returns your mock session
+        mocker.patch.object(
+            type(backend), "session", new_callable=PropertyMock, return_value=session
+        )
+
         mocker.patch("mopidy_tidal.playlists.get_items", lambda x: x)
-        backend.session.user.playlists.return_value = tidal_playlists[1:]
 
         assert backend.logged_in
         assert not backend.logging_in
@@ -234,6 +241,7 @@ class TestPlaylistMethods:
             Ref(name="Playlist-101", type="playlist", uri="tidal:playlist:101"),
             Ref(name="Playlist-222", type="playlist", uri="tidal:playlist:222"),
         ]
+
         assert not audiof.exists()
 
 
@@ -287,7 +295,6 @@ class TestPlaybackMethods:
         get.assert_called_once()
         assert not audiof.exists()
 
-    # @pytest.disable()
     def test_downloaded_audio_removed_on_next_access(
         self, playback_provider, mocker, tidal_playlists
     ):
@@ -306,18 +313,26 @@ class TestPlaybackMethods:
         backend._login_future.running.return_value = False
         assert not backend.logging_in
 
-        session = mocker.Mock(**{"user.favorites.playlists": tidal_playlists[:1]})
-        backend._active_session = session
-        mocker.patch("mopidy_tidal.playlists.get_items", lambda x: x)
-        backend.session.user.playlists.return_value = tidal_playlists[1:]
+        # Setup mock session with playlists_paginated only
+        session = mocker.Mock()
+        session.user.favorites.playlists_paginated.return_value = tidal_playlists
 
-        # User has now logged in. We should now be able to access playlists and audiof should be removed
+        # Patch the read-only session property on backend
+        mocker.patch.object(
+            type(backend), "session", new_callable=PropertyMock, return_value=session
+        )
+
+        # Patch get_items as before
+        mocker.patch("mopidy_tidal.playlists.get_items", lambda x: x)
+
         backend._logged_in = True
         tpp = TidalPlaylistsProvider(backend=backend)
         assert tpp.as_list() == [
             Ref(name="Playlist-101", type="playlist", uri="tidal:playlist:101"),
             Ref(name="Playlist-222", type="playlist", uri="tidal:playlist:222"),
         ]
+
+        # The audio file should have been removed on access after login
         assert not audiof.exists()
 
 

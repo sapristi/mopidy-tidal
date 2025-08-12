@@ -100,7 +100,7 @@ class TestBrowse:
     def test_my_artists_returns_favourite_artists_from_tidal_as_refs(
         self, library_provider, session, mocker, make_tidal_artist
     ):
-        session.user.favorites.artists = [
+        session.user.favorites.artists_paginated.return_value = [
             make_tidal_artist(name="Arty", id=1),
             make_tidal_artist(name="Arthur", id=1_000),
         ]
@@ -114,7 +114,7 @@ class TestBrowse:
     def test_my_albums_returns_favourite_albums_from_tidal_as_refs(
         self, library_provider, session, mocker, make_tidal_album
     ):
-        session.user.favorites.albums = [
+        session.user.favorites.albums_paginated.return_value = [
             make_tidal_album(name="Alby", id=7),
             make_tidal_album(name="Albion", id=7_000),
         ]
@@ -136,7 +136,7 @@ class TestBrowse:
     ):
         artist = make_tidal_artist(name="Arty", id=6)
         album = make_tidal_album(name="Albion", id=7)
-        session.user.favorites.tracks = [
+        session.user.favorites.tracks_paginated.return_value = [
             make_tidal_track(name="Tracky", id=12, artist=artist, album=album),
             make_tidal_track(name="Traction", id=13, artist=artist, album=album),
         ]
@@ -368,7 +368,7 @@ def test_specific_playlist(library_provider, backend, mocker, tidal_tracks):
     ]
 
     session.playlist.assert_called_once_with("1")
-    playlist.tracks.assert_has_calls([mocker.call(100, 0)])
+    playlist.tracks.assert_has_calls([mocker.call(50, 0), mocker.call(50, 50)])
 
 
 def test_specific_mood(library_provider, backend, mocker):
@@ -586,7 +586,7 @@ def test_lookup_playlist(library_provider, backend, mocker, tidal_tracks, compar
     compare(tidal_tracks, res[: len(tidal_tracks)], "track")
 
     session.playlist.assert_called_with("99")
-    assert len(playlist.tracks.mock_calls) == 5, "Didn't run five fetches in parallel."
+    assert len(playlist.tracks.mock_calls) == 2, "Didn't run two fetches in parallel."
 
 
 def test_lookup_playlist_cached(
@@ -606,4 +606,4 @@ def test_lookup_playlist_cached(
     assert res2 == res
 
     session.playlist.assert_called_with("99")
-    assert len(playlist.tracks.mock_calls) == 5, "Didn't run five fetches in parallel."
+    assert len(playlist.tracks.mock_calls) == 2, "Didn't run two fetches in parallel."

@@ -3,16 +3,16 @@ from __future__ import unicode_literals
 import difflib
 import logging
 import operator
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from threading import Event, Timer
 from typing import TYPE_CHECKING, Collection, List, Optional, Tuple, Union
 
 from mopidy import backend
 from mopidy.models import Playlist as MopidyPlaylist
-from mopidy.models import Ref, Track
+from mopidy.models import Ref
 from requests import HTTPError
 from tidalapi.playlist import Playlist as TidalPlaylist
+from tidalapi.workers import get_items
 
 from mopidy_tidal import full_models_mappers
 from mopidy_tidal.full_models_mappers import create_mopidy_playlist
@@ -20,7 +20,6 @@ from mopidy_tidal.helpers import to_timestamp
 from mopidy_tidal.login_hack import login_hack
 from mopidy_tidal.lru_cache import LruCache
 from mopidy_tidal.utils import mock_track
-from mopidy_tidal.workers import get_items
 
 if TYPE_CHECKING:  # pragma: no cover
     from mopidy_tidal.backend import TidalBackend
@@ -71,34 +70,19 @@ class TidalPlaylistsProvider(backend.PlaylistsProvider):
     ) -> Tuple[Collection[str], Collection[str]]:
         logger.info("Calculating playlist updates..")
         session = self.backend.session
-        updated_playlists = []
 
-        with ThreadPoolExecutor(
-            2, thread_name_prefix="mopidy-tidal-playlists-refresh-"
-        ) as pool:
-            pool_res = pool.map(
-                lambda func: (
-                    get_items(func)
-                    if func == session.user.favorites.playlists
-                    else func()
-                ),
-                [
-                    session.user.favorites.playlists,
-                    session.user.playlists,
-                ],
-            )
-
-            for playlists in pool_res:
-                updated_playlists += playlists
+        updated_playlists = session.user.favorites.playlists_paginated()
 
         self._current_tidal_playlists = updated_playlists
         updated_ids = set(pl.id for pl in updated_playlists)
+
         if not self._playlists_metadata:
             return updated_ids, set()
 
         current_ids = set(uri.split(":")[-1] for uri in self._playlists_metadata.keys())
         added_ids = updated_ids.difference(current_ids)
         removed_ids = current_ids.difference(updated_ids)
+
         self._playlists_metadata.prune(
             *[
                 uri
@@ -190,7 +174,8 @@ class TidalPlaylistsProvider(backend.PlaylistsProvider):
             # it. If that's the case, remove the playlist from the
             # favourites instead of deleting it.
             if e.response.status_code == 401 and uri in {
-                f"tidal:playlist:{pl.id}" for pl in session.user.favorites.playlists()
+                f"tidal:playlist:{pl.id}"
+                for pl in session.user.favorites.playlists_paginated()
             }:
                 session.user.favorites.remove_playlist(playlist_id)
             else:
