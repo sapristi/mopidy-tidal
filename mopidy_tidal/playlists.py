@@ -174,7 +174,8 @@ class TidalPlaylistsProvider(backend.PlaylistsProvider):
             # it. If that's the case, remove the playlist from the
             # favourites instead of deleting it.
             if e.response.status_code == 401 and uri in {
-                f"tidal:playlist:{pl.id}" for pl in session.user.favorites.playlists()
+                f"tidal:playlist:{pl.id}"
+                for pl in session.user.favorites.playlists_paginated()
             }:
                 session.user.favorites.remove_playlist(playlist_id)
             else:
