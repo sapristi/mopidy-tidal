@@ -156,7 +156,9 @@ class TidalLibraryProvider(backend.LibraryProvider):
 
     @staticmethod
     def _convert_tracks(
-        tracks: Union[dict, list[dict], list[Track], list[tuple[str, Any | None]]],
+        tracks: Union[
+            dict, list[dict], list[Track], list[tuple[str, Union[Any, None]]]
+        ],
     ) -> list[Track]:
         """
         Convert looked up tracks to a list of Track objects.
