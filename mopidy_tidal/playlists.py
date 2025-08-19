@@ -208,7 +208,7 @@ class TidalPlaylistsProvider(backend.PlaylistsProvider):
 
             # Cache miss case
             if include_items:
-                pl_tracks = self._retrieve_api_tracks(session, pl)
+                pl_tracks = self._retrieve_api_tracks(pl)
                 tracks = full_models_mappers.create_mopidy_tracks(pl_tracks)
             else:
                 # Create as many mock tracks as the number of items in the playlist.
@@ -250,9 +250,8 @@ class TidalPlaylistsProvider(backend.PlaylistsProvider):
 
         return [Ref.track(uri=t.uri, name=t.name) for t in playlist.tracks]
 
-    def _retrieve_api_tracks(self, session, playlist):
-        getter_args = tuple()
-        return get_items(playlist.tracks, *getter_args)
+    def _retrieve_api_tracks(self, playlist):
+        return playlist.tracks_paginated()
 
     def save(self, playlist):
         old_playlist = self._get_or_refresh_playlist(playlist.uri)

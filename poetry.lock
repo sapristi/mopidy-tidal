@@ -871,14 +871,14 @@ tests = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "tidalapi"
-version = "0.8.5"
+version = "0.8.6"
 description = "Unofficial API for TIDAL music streaming service."
 optional = false
 python-versions = "<4.0,>=3.8"
 groups = ["main"]
 files = [
-    {file = "tidalapi-0.8.5-py3-none-any.whl", hash = "sha256:208f9ca47d012563f7038764a44ae46d68ae38d6c2a527e15fab50f5670bda9f"},
-    {file = "tidalapi-0.8.5.tar.gz", hash = "sha256:45609ad1aa5176f8935310a2df27bbb57bd371fdf03f4481b380c22f6d370ed4"},
+    {file = "tidalapi-0.8.6-py3-none-any.whl", hash = "sha256:a55f54ff4110398cd3a565b6cfc8bcbf8e104442e06db0eab8372abcd653a3d6"},
+    {file = "tidalapi-0.8.6.tar.gz", hash = "sha256:23315c717d56f08436638d217d73e710ff5ce414292b0668ae8cbfeefab92323"},
 ]
 
 [package.dependencies]
@@ -1000,4 +1000,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "ee3a72b6a225c4fa97e2d14db562558752fc09c8ff8c265f4cc670e75111d8f4"
+content-hash = "f246d25723d32ccb32e684af8c8aaecea92b655cc4b3e8262623a6bf7953777b"

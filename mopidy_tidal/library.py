@@ -265,7 +265,9 @@ class TidalLibraryProvider(backend.LibraryProvider):
                 session.user.favorites.tracks_paginated()
             )
         elif uri == "tidal:home":
-            return ref_models_mappers.create_category_directories(uri, session.home())
+            return ref_models_mappers.create_category_directories(
+                uri, session.home(use_legacy_endpoint=True)
+            )
         elif uri == "tidal:for_you":
             return ref_models_mappers.create_category_directories(
                 uri, session.for_you()
@@ -431,8 +433,7 @@ class TidalLibraryProvider(backend.LibraryProvider):
         except ObjectNotFound:
             logger.debug("No such playlist: %s", playlist_id)
             return []
-        getter_args = tuple()
-        return get_items(pl.tracks, *getter_args)
+        return pl.tracks_paginated()
 
     @staticmethod
     def _get_genre_items(session, genre_id):
@@ -518,9 +519,7 @@ class TidalLibraryProvider(backend.LibraryProvider):
                 logger.warning("No such track: %s", track_id)  # pragma: no cover
                 return []  # Return early to prevent accessing attributes of None
 
-            artist = full_models_mappers.create_mopidy_artist(track.artist)
-            album = full_models_mappers.create_mopidy_album(track.album, artist)
-            return [full_models_mappers.create_mopidy_track(artist, album, track)]
+            return [full_models_mappers.create_mopidy_track(None, None, track)]
         else:
             return []
 

@@ -357,8 +357,8 @@ def test_specific_playlist(library_provider, backend, mocker, tidal_tracks):
     session = backend.session
     session.mock_add_spec(("playlist",))
     playlist = mocker.Mock(name="Playlist")
-    playlist.tracks.return_value = tidal_tracks
-    playlist.tracks.__name__ = "playlist"
+    playlist.tracks_paginated.return_value = tidal_tracks
+    playlist.tracks_paginated.__name__ = "playlist"
     session.playlist.return_value = playlist
 
     tracks = library_provider.browse("tidal:playlist:1")
@@ -368,7 +368,6 @@ def test_specific_playlist(library_provider, backend, mocker, tidal_tracks):
     ]
 
     session.playlist.assert_called_once_with("1")
-    playlist.tracks.assert_has_calls([mocker.call(50, 0), mocker.call(50, 50)])
 
 
 def test_specific_mood(library_provider, backend, mocker):
@@ -579,14 +578,13 @@ def test_lookup_playlist(library_provider, backend, mocker, tidal_tracks, compar
     playlist.name = "Playlist-1"
     playlist.last_updated = 10
     session.playlist.return_value = playlist
-    playlist.tracks.return_value = tidal_tracks
-    playlist.tracks.__name__ = "get_playlist_tracks"
+    playlist.tracks_paginated.return_value = tidal_tracks
+    playlist.tracks_paginated.__name__ = "get_playlist_tracks"
 
     res = library_provider.lookup("tidal:playlist:99")
     compare(tidal_tracks, res[: len(tidal_tracks)], "track")
 
     session.playlist.assert_called_with("99")
-    assert len(playlist.tracks.mock_calls) == 2, "Didn't run two fetches in parallel."
 
 
 def test_lookup_playlist_cached(
@@ -597,8 +595,8 @@ def test_lookup_playlist_cached(
     playlist.name = "Playlist-1"
     playlist.last_updated = 10
     session.playlist.return_value = playlist
-    playlist.tracks.return_value = tidal_tracks
-    playlist.tracks.__name__ = "get_playlist_tracks"
+    playlist.tracks_paginated.return_value = tidal_tracks
+    playlist.tracks_paginated.__name__ = "get_playlist_tracks"
 
     res = library_provider.lookup("tidal:playlist:99")
     compare(tidal_tracks, res[: len(tidal_tracks)], "track")
@@ -606,4 +604,3 @@ def test_lookup_playlist_cached(
     assert res2 == res
 
     session.playlist.assert_called_with("99")
-    assert len(playlist.tracks.mock_calls) == 2, "Didn't run two fetches in parallel."
