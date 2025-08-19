@@ -36,7 +36,9 @@ def create_mopidy_albums(tidal_albums):
 
 
 def create_mopidy_album(tidal_album, artists):
-    if tidal_album.artists:
+    if artists:
+        pass
+    elif tidal_album.artists:
         artists = [create_mopidy_artist(artist) for artist in tidal_album.artists]
     else:
         artists = [create_mopidy_artist(tidal_album.artist)]

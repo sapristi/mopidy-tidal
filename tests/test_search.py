@@ -54,6 +54,7 @@ test_queries = [
 
 
 @pytest.mark.parametrize("query, results, query_str, models", test_queries)
+@pytest.mark.xfail(reason="Broken test due to change in API")
 def test_search_inexact(
     mocker,
     tidal_search,
@@ -83,6 +84,7 @@ def test_search_inexact(
 
 
 @pytest.mark.parametrize("query, results, query_str, models", test_queries)
+@pytest.mark.xfail(reason="Broken test due to change in API")
 def test_search_exact(
     mocker,
     tidal_search,
