@@ -3,7 +3,10 @@
 #### v0.3.11
 
 - Bugfix: Set playlist fetch limit to 50 items due to v2 endpoint limitations
-- Get ThreadPoolExecutor from tidalapi
+- Feature: Use tidalapi pagination for album, artist, track and playlist and playlist tracks.
+- Use legacy home page as fallback until V2 is supported.
+- Bugfix: Return all artists for tracks and albums. (Fixes: #189)
+- tidalapi version bump to v0.8.6
 
 #### v0.3.10
 
