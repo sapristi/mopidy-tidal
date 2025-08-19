@@ -519,9 +519,7 @@ class TidalLibraryProvider(backend.LibraryProvider):
                 logger.warning("No such track: %s", track_id)  # pragma: no cover
                 return []  # Return early to prevent accessing attributes of None
 
-            artist = full_models_mappers.create_mopidy_artist(track.artist)
-            album = full_models_mappers.create_mopidy_album(track.album, artist)
-            return [full_models_mappers.create_mopidy_track(artist, album, track)]
+            return [full_models_mappers.create_mopidy_track(None, None, track)]
         else:
             return []
 
